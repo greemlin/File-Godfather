@@ -103,7 +103,7 @@ namespace GodFather
             var retVal = 0;
 
             var theFiles = checkBox1.Checked
-                ? Info.GetFiles().OrderBy(p => p.Name.Trim().ToLower()).ToArray()
+                ? Info.GetFiles().OrderBy(p=> p.Name.Trim().ToLower()).ToArray()
                 : Info.GetFiles().OrderByDescending(p => p.LastWriteTime).ToArray();
             foreach (var file in theFiles)
             {
@@ -142,7 +142,7 @@ namespace GodFather
             while (TheTempFileCount!=GetFileCount())
             {
                 TheTempFileCount = GetFileCount();
-                Thread.Sleep(500);
+                Thread.Sleep(1000);
             }
 
             var theFiles = checkBox1.Checked
@@ -160,7 +160,7 @@ namespace GodFather
                         var str = new StringBuilder(ew.Name);
                         var theNum = GetLastNumber().ToString().PadLeft(3, '0') + " ";
                         str.Insert(0, theNum);
-                        var newName = textBox1.Text + "\\" + str.ToString();
+                        var newName = textBox1.Text + "\\" + str;
                         File.Move(ew.FullName, newName);
                         _chngNumber++;
                         SetLabel($@"File {ew.Name} renamed");
@@ -171,7 +171,7 @@ namespace GodFather
                     }
                 }
             }
-             TheTempFileCount = 0;
+             //TheTempFileCount = 0;
         }
 
         private void Button3_Click(object sender, EventArgs e)
@@ -205,11 +205,12 @@ namespace GodFather
                 var theFiles = Info.GetFiles().OrderByDescending(p => p.LastWriteTime).ToArray();
                 var folderName = theFiles.First().Name.Trim().Substring(theFiles.First().Name.Trim().IndexOf(' ') + 1).Split('.')[0];
                 var promptValue = Prompt.ShowDialog("Modify the Folder Name bellow", "New Folder Name", folderName);
-                Directory.CreateDirectory(textBox1.Text + "\\" + promptValue);
+                Directory.CreateDirectory(textBox1.Text + "\\" + promptValue.Trim());
                 foreach (var file in theFiles)
                 {
-                    var newName = textBox1.Text + "\\" + promptValue + "\\" + file.Name;
-                    File.Move(file.FullName, newName);
+                    var newName = ((textBox1.Text + "\\" + promptValue + "\\" + file.Name).Trim()
+                                  .Split('(')[0]).Trim();
+                    File.Move(file.FullName, (newName.Replace(file.Extension, "")).TrimEnd() + file.Extension);
                 }
                 SetLabel($@"New Folder {promptValue} created, with {theFiles.Length} files.");
             }
