@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
@@ -33,7 +34,6 @@ namespace GodFather
                 button2.Text = @"Autorename On";
                 StopWatching();
             }
-
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -42,8 +42,17 @@ namespace GodFather
             {
                 textBox1.Text = folderBrowserDialog1.SelectedPath;
             }
-
             Info = new DirectoryInfo(textBox1.Text + "\\");
+            EnableButtons();
+        }
+
+        private void EnableButtons()
+        {
+            button5.Enabled = textBox1.Text.Length > 0;
+            button4.Enabled = textBox1.Text.Length > 0;
+            button3.Enabled = textBox1.Text.Length > 0;
+            button2.Enabled = textBox1.Text.Length > 0;
+            checkBox1.Enabled = textBox1.Text.Length > 0;
         }
 
         private void StartWatching()
@@ -105,38 +114,19 @@ namespace GodFather
             return ++retVal;
         }
 
-        static bool IsFileLocked(FileInfo file)
-        {
-            FileStream stream = null;
-            try
-            {
-                stream = file.Open(FileMode.Open, FileAccess.ReadWrite, FileShare.None);
-            }
-            catch (IOException)
-            {
-                return true;
-            }
-            finally
-            {
-                stream?.Close();
-            }
-            return false;
-        }
-
         private void SetLabel(String msg)
         {
             label1.Invoke((MethodInvoker)(() => label1.Text = msg));
         }
 
-
         void OnRenamed(object sender, RenamedEventArgs e)
         {
-
+            //not Implemented
         }
 
         void OnDeleted(object sender, FileSystemEventArgs e)
         {
-
+            //not Implemented
         }
 
         int GetFileCount()
@@ -149,8 +139,6 @@ namespace GodFather
 
         void RenameFiles()
          {
-
-
             while (TheTempFileCount!=GetFileCount())
             {
                 TheTempFileCount = GetFileCount();
@@ -186,12 +174,12 @@ namespace GodFather
              TheTempFileCount = 0;
         }
 
-        private void button3_Click(object sender, EventArgs e)
+        private void Button3_Click(object sender, EventArgs e)
         {
-          clearNames();
+          ClearNames();
         }
 
-        void clearNames()
+        void ClearNames()
         {
             var theFiles = Info.GetFiles().OrderByDescending(p => p.LastWriteTime).ToArray();
             foreach (var file in theFiles)
@@ -204,11 +192,57 @@ namespace GodFather
                 }
             }
         }
-
-
-        private void button4_Click_1(object sender, EventArgs e)
+        
+        private void Button4_Click_1(object sender, EventArgs e)
         {
             RenameFiles();
+        }
+
+        private void Button5_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                var theFiles = Info.GetFiles().OrderByDescending(p => p.LastWriteTime).ToArray();
+                var folderName = theFiles.First().Name.Trim().Substring(theFiles.First().Name.Trim().IndexOf(' ') + 1).Split('.')[0];
+                var promptValue = Prompt.ShowDialog("Modify the Folder Name bellow", "New Folder Name", folderName);
+                Directory.CreateDirectory(textBox1.Text + "\\" + promptValue);
+                foreach (var file in theFiles)
+                {
+                    var newName = textBox1.Text + "\\" + promptValue + "\\" + file.Name;
+                    File.Move(file.FullName, newName);
+                }
+                SetLabel($@"New Folder {promptValue} created, with {theFiles.Length} files.");
+            }
+            catch
+            {
+                SetLabel(@"No files found!");
+            }
+        }
+    }
+
+    public static class Prompt
+    {
+        public static string ShowDialog(string text, string caption, string defaultText="")
+        {
+            Form prompt = new Form()
+            {
+                Width = 500,
+                Height = 150,
+                FormBorderStyle = FormBorderStyle.FixedDialog,
+                Text = caption,
+                StartPosition = FormStartPosition.CenterScreen
+            };
+            Label textLabel = new Label() { Left = 50, Top = 20, Text = text };
+            TextBox textBox = new TextBox() { Left = 50, Top = 50, Width = 400 };
+            Button confirmation = new Button() { Text = "Ok", Left = 350, Width = 100, Top = 70, DialogResult = DialogResult.OK };
+            textBox.Text = defaultText;
+            confirmation.Click += (sender, e) => { prompt.Close(); };
+            prompt.Controls.Add(textBox);
+            prompt.Controls.Add(confirmation);
+            prompt.Controls.Add(textLabel);
+            prompt.AcceptButton = confirmation;
+
+            return prompt.ShowDialog() == DialogResult.OK ? textBox.Text : "";
         }
     }
 }
