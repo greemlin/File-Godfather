@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
@@ -28,11 +27,13 @@ namespace GodFather
             {
                 button2.Text = @"Autorename Off";
                 StartWatching();
+                pictureBox1.Visible = true;
             }
             else
             {
                 button2.Text = @"Autorename On";
                 StopWatching();
+                pictureBox1.Visible = false;
             }
         }
 
@@ -64,7 +65,9 @@ namespace GodFather
             {
                 Path = textBox1.Text + "\\",
                 Filter = "*.*",
-                NotifyFilter = NotifyFilters.LastWrite                             
+                NotifyFilter = NotifyFilters.LastAccess |
+                               NotifyFilters.LastWrite  |
+                               NotifyFilters.CreationTime
             };
 
             _mWatcher.Changed += new FileSystemEventHandler(OnChanged);
@@ -104,7 +107,7 @@ namespace GodFather
 
             var theFiles = checkBox1.Checked
                 ? Info.GetFiles().OrderBy(p=> p.Name.Trim().ToLower()).ToArray()
-                : Info.GetFiles().OrderByDescending(p => p.LastWriteTime).ToArray();
+                : Info.GetFiles().OrderBy(p => p.LastWriteTime).ToArray();
             foreach (var file in theFiles)
             {
                 int.TryParse(file.Name.Substring(0, 3), out var theInt);
@@ -133,7 +136,7 @@ namespace GodFather
         {
             var theFiles = checkBox1.Checked
                 ? Info.GetFiles().OrderBy(p => p.Name.Trim().ToLower()).ToArray()
-                : Info.GetFiles().OrderByDescending(p => p.LastWriteTime).ToArray();
+                : Info.GetFiles().OrderBy(p => p.LastWriteTime).ToArray();
             return theFiles.Length;
         }
 
@@ -147,7 +150,7 @@ namespace GodFather
 
             var theFiles = checkBox1.Checked
                 ? Info.GetFiles().OrderBy(p => p.Name.Trim().ToLower()).ToArray()
-                : Info.GetFiles().OrderByDescending(p => p.LastWriteTime).ToArray();
+                : Info.GetFiles().OrderBy(p => p.LastWriteTime).ToArray();
             foreach (var ew in theFiles)
             {
                 int.TryParse(ew.Name.Split(' ')[0], out var theN);
@@ -181,7 +184,7 @@ namespace GodFather
 
         void ClearNames()
         {
-            var theFiles = Info.GetFiles().OrderByDescending(p => p.LastWriteTime).ToArray();
+            var theFiles = Info.GetFiles().OrderBy(p => p.LastWriteTime).ToArray();
             foreach (var file in theFiles)
             {
                 int.TryParse(file.Name.Trim().Substring(0, file.Name.Trim().IndexOf(' ') + 1), out var theInt);
@@ -202,7 +205,7 @@ namespace GodFather
         {
             try
             {
-                var theFiles = Info.GetFiles().OrderByDescending(p => p.LastWriteTime).ToArray();
+                var theFiles = Info.GetFiles().OrderBy(p => p.LastWriteTime).ToArray();
                 var folderName = theFiles.First().Name.Trim().Substring(theFiles.First().Name.Trim().IndexOf(' ') + 1).Split('.')[0];
                 var promptValue = Prompt.ShowDialog("Modify the Folder Name bellow", "New Folder Name", folderName);
                 Directory.CreateDirectory(textBox1.Text + "\\" + promptValue.Trim());
