@@ -65,9 +65,9 @@ namespace GodFather
             {
                 Path = textBox1.Text + "\\",
                 Filter = "*.*",
-                NotifyFilter = NotifyFilters.LastAccess |
-                               NotifyFilters.LastWrite  |
-                               NotifyFilters.CreationTime
+                NotifyFilter = NotifyFilters.DirectoryName |
+                               NotifyFilters.FileName  |
+                               NotifyFilters.LastWrite
             };
 
             _mWatcher.Changed += new FileSystemEventHandler(OnChanged);
@@ -213,7 +213,7 @@ namespace GodFather
                 {
                     var newName = ((textBox1.Text + "\\" + promptValue + "\\" + file.Name).Trim()
                                   .Split('(')[0]).Trim();
-                    File.Move(file.FullName, (newName.Replace(file.Extension, "")).TrimEnd() + file.Extension);
+                    File.Move(file.FullName, (newName.Replace(file.Extension, "")).TrimEnd(' ') + file.Extension);
                 }
                 SetLabel($@"New Folder {promptValue} created, with {theFiles.Length} files.");
             }
