@@ -106,7 +106,7 @@ namespace GodFather
             var retVal = 0;
 
             var theFiles = checkBox1.Checked
-                ? Info.GetFiles().OrderBy(p=> p.Name.Trim().ToLower()).ToArray()
+                ? Info.GetFiles().OrderBy(p => p.Name.Length).ThenBy(p=> p.Name.Trim().ToLower()).ToArray()
                 : Info.GetFiles().OrderBy(p => p.LastWriteTime).ToArray();
             foreach (var file in theFiles)
             {
@@ -149,7 +149,7 @@ namespace GodFather
             }
 
             var theFiles = checkBox1.Checked
-                ? Info.GetFiles().OrderBy(p => p.Name.Trim().ToLower()).ToArray()
+                ? Info.GetFiles().OrderBy(p => p.Name.Length).ThenBy(p => p.Name.Trim().ToLower()).ToArray()
                 : Info.GetFiles().OrderBy(p => p.LastWriteTime).ToArray();
             foreach (var ew in theFiles)
             {
