@@ -95,6 +95,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <None Include="setup\setup Files.7z" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
